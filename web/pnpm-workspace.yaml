@@ -1,4 +1,4 @@
 allowBuilds:
-  playwright-chromium: set this to true or false
+  playwright-chromium: false
   sharp: true
   unrs-resolver: true
