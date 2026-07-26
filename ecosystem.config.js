@@ -4,8 +4,8 @@ module.exports = {
   apps: [{
     name: 'web',
     cwd: path.join(__dirname, 'web'),
-    script: 'node_modules/next/dist/bin/next',
-    args: 'start -p 3000',
+    script: 'node',
+    args: 'node_modules/next/dist/bin/next start -p 3000',
     env: { NODE_ENV: 'production' },
   }],
 };
