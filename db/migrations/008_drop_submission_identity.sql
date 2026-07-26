@@ -1,0 +1,4 @@
+BEGIN;
+ALTER TABLE submissions DROP COLUMN IF EXISTS nama_pengusul;
+ALTER TABLE submissions DROP COLUMN IF EXISTS kontak;
+COMMIT;
