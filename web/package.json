@@ -42,5 +42,8 @@
     "playwright-chromium": "^1.61.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": ["playwright-chromium"]
   }
 }
