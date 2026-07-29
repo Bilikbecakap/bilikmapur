@@ -44,9 +44,9 @@ export default function MasukPage() {
             <h1
               className="font-semibold text-arang mb-2 leading-tight"
               style={{
-                fontFamily: "var(--font-cormorant), Georgia, serif",
-                fontStyle: "italic",
+                fontFamily: "var(--font-baloo), Georgia, sans-serif",
                 fontSize: "2.5rem",
+                fontStyle: "italic",
               }}
             >
               Masuk

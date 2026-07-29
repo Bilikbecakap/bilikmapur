@@ -43,7 +43,7 @@ export default async function ArtikelPage() {
         <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-rimba mb-2">Pustaka</p>
         <h1
           className="font-semibold text-arang mb-1 leading-tight"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "2.25rem", fontStyle: "italic" }}
+          style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontSize: "2.25rem", fontStyle: "italic" }}
         >
           Artikel
         </h1>
@@ -87,7 +87,7 @@ export default async function ArtikelPage() {
                     </span>
                   </div>
                   <h2 className="font-semibold text-arang text-lg leading-snug mb-2 group-hover:text-rimba transition-colors line-clamp-2"
-                    style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.2rem" }}>
+                    style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontSize: "1.2rem" }}>
                     {artikel.judul}
                   </h2>
                   {artikel.ringkasan && (

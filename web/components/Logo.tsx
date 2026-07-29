@@ -1,25 +1,17 @@
 import Link from "next/link";
+import Image from "next/image";
 
-export default function Logo({ light = false }: { light?: boolean }) {
+export default function Logo() {
   return (
-    <Link href="/" className="flex flex-col leading-none group">
-      <span
-        className="font-semibold tracking-tight transition-colors"
-        style={{
-          fontFamily: "var(--font-cormorant), Georgia, serif",
-          fontStyle: "italic",
-          fontSize: "1.35rem",
-          color: light ? "#F3F2F2" : "var(--arang)",
-        }}
-      >
-        Bilik Mapur
-      </span>
-      <span
-        className="text-[9px] font-medium tracking-[0.18em] uppercase"
-        style={{ color: light ? "rgba(243,242,242,0.55)" : "var(--teks-sekunder)" }}
-      >
-        Digitalisasi Bahasa Daerah
-      </span>
+    <Link href="/" className="flex items-center group">
+      <Image
+        src="/image/logo-bilik-mapur.png"
+        alt="Bilik Mapur"
+        width={969}
+        height={198}
+        priority
+        className="h-8 sm:h-9 w-auto"
+      />
     </Link>
   );
 }

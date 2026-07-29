@@ -26,7 +26,7 @@ export default async function VideoPage() {
         <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-rimba mb-2">Koleksi</p>
         <h1
           className="font-semibold text-arang mb-1 leading-tight"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "2.25rem", fontStyle: "italic" }}
+          style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontSize: "2.25rem", fontStyle: "italic" }}
         >
           Video
         </h1>

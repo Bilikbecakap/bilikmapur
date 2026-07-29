@@ -79,7 +79,7 @@ export default async function DetailLema({
         <h1
           className="text-5xl font-semibold mb-3 leading-tight"
           style={{
-            fontFamily: "var(--font-cormorant), Georgia, serif",
+            fontFamily: "var(--font-baloo), Georgia, sans-serif",
             fontStyle: "italic",
             color: "var(--kulit-kayu)",
           }}

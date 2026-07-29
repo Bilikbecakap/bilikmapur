@@ -67,7 +67,7 @@ export default async function UsulanPage({
 
       <h1
         className="font-semibold text-arang mb-2 leading-tight"
-        style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "2.25rem", fontStyle: "italic" }}
+        style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontSize: "2.25rem", fontStyle: "italic" }}
       >
         {judul}
       </h1>

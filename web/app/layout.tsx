@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Lora } from "next/font/google";
+import { Baloo_2, Lora } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const baloo = Baloo_2({
   subsets: ["latin"],
-  variable: "--font-cormorant",
+  variable: "--font-baloo",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: ["500", "600", "700", "800"],
 });
 
 const lora = Lora({
@@ -33,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={`${cormorant.variable} ${lora.variable}`}>
+    <html lang="id" className={`${baloo.variable} ${lora.variable}`}>
       <body className="antialiased">{children}</body>
     </html>
   );

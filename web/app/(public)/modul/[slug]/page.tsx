@@ -87,7 +87,7 @@ export default async function DetailModul({
           />
           <h1
             className="text-2xl sm:text-3xl font-semibold text-arang leading-tight mb-3"
-            style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontStyle: "italic" }}
+            style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontStyle: "italic" }}
           >
             {modul.judul}
           </h1>

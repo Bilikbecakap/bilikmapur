@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
 export const metadata: Metadata = {
   title: "Bilik Mapur — Digitalisasi Bahasa Daerah",
@@ -11,8 +13,41 @@ export default function Beranda() {
   return (
     <>
       {/* ── Hero ── */}
-      <section className="bg-kapur border-b-2 border-granit/30">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28">
+      <section className="relative overflow-hidden bg-kapur border-b-2 border-granit/30">
+        {/* Ornamen busur — sudut kiri atas */}
+        <svg
+          className="absolute -top-16 -left-16 pointer-events-none select-none hidden sm:block"
+          width="280"
+          height="280"
+          viewBox="0 0 280 280"
+          fill="none"
+          aria-hidden="true"
+        >
+          {[40, 65, 90, 115, 140, 165, 190, 215, 245, 278].map((r, i) => (
+            <path
+              key={r}
+              d={`M ${280 - r} 280 A ${r} ${r} 0 0 1 280 ${280 - r}`}
+              stroke="#33503C"
+              strokeWidth="1"
+              fill="none"
+              opacity={Math.max(0.03, 0.14 - i * 0.011)}
+            />
+          ))}
+        </svg>
+
+        {/* Kilau lembut di belakang foto */}
+        <div
+          className="absolute top-1/2 right-0 -translate-y-1/2 -z-0 hidden lg:block pointer-events-none select-none"
+          style={{
+            width: "620px",
+            height: "620px",
+            transform: "translate(20%, -50%)",
+            background:
+              "radial-gradient(circle, rgba(182,130,53,0.16) 0%, rgba(182,130,53,0.05) 45%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Teks */}
             <div>
@@ -24,13 +59,13 @@ export default function Beranda() {
               <h1
                 className="font-semibold leading-[1.08] mb-6 text-arang"
                 style={{
-                  fontFamily: "var(--font-cormorant), Georgia, serif",
-                  fontSize: "clamp(3rem, 6vw, 5rem)",
+                  fontFamily: "var(--font-baloo), Georgia, sans-serif",
+                  fontSize: "clamp(2.625rem, 5.25vw, 4.375rem)",
                   fontStyle: "italic",
                 }}
               >
                 Merawat tutur<br />
-                orang Mapur.
+                orang <span className="istilah-mapur">Mapur</span>.
               </h1>
 
               <p className="text-base leading-relaxed text-teks-sekunder mb-10 max-w-lg" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
@@ -42,7 +77,7 @@ export default function Beranda() {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/kamus"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded text-sm font-medium transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded text-sm font-medium shadow-sm transition-all hover:opacity-90 hover:shadow-md"
                   style={{ background: "var(--rimba)", color: "#F3F2F2", fontFamily: "var(--font-lora), Georgia, serif" }}
                 >
                   Buka Kamus Digital
@@ -50,42 +85,12 @@ export default function Beranda() {
                     <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                 </Link>
-                <Link
-                  href="/video"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded text-sm border-2 transition-colors hover:border-beras-merah hover:text-beras-merah"
-                  style={{
-                    borderColor: "#9A9188",
-                    color: "#5A5348",
-                    fontFamily: "var(--font-lora), Georgia, serif",
-                  }}
-                >
-                  Tonton Budaya
-                </Link>
               </div>
             </div>
 
-            {/* Sisi kanan — kotak gambar placeholder */}
+            {/* Sisi kanan — foto */}
             <div className="hidden lg:block">
-              <div
-                className="relative w-full aspect-[4/3] rounded-sm overflow-hidden border-2 border-granit/40"
-                style={{ background: "#E8E6E0" }}
-              >
-                {/* Ornamen SVG di tengah */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-25">
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                    <path
-                      d="M24 8 C20 8 16 12 16 16 L16 36 L24 32 L32 36 L32 16 C32 12 28 8 24 8 Z"
-                      stroke="#B68235"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <line x1="24" y1="12" x2="24" y2="32" stroke="#B68235" strokeWidth="2" />
-                  </svg>
-                  <p className="text-xs text-teks-sekunder tracking-wider uppercase text-center">
-                    Foto Komunitas<br />Arsip Mapur
-                  </p>
-                </div>
-              </div>
+              <HeroSlideshow />
             </div>
           </div>
         </div>
@@ -144,7 +149,7 @@ export default function Beranda() {
               <h2
                 className="font-semibold text-arang leading-tight"
                 style={{
-                  fontFamily: "var(--font-cormorant), Georgia, serif",
+                  fontFamily: "var(--font-baloo), Georgia, sans-serif",
                   fontSize: "clamp(1.8rem, 3vw, 2.5rem)",
                   fontStyle: "italic",
                 }}
@@ -190,7 +195,7 @@ export default function Beranda() {
                 <h3
                   className="font-semibold text-arang mb-3 transition-colors group-hover:text-rimba"
                   style={{
-                    fontFamily: "var(--font-cormorant), Georgia, serif",
+                    fontFamily: "var(--font-baloo), Georgia, sans-serif",
                     fontSize: "1.5rem",
                     fontStyle: "italic",
                   }}
@@ -222,7 +227,7 @@ export default function Beranda() {
                 <h2
                   className="font-semibold text-arang mb-4 leading-tight"
                   style={{
-                    fontFamily: "var(--font-cormorant), Georgia, serif",
+                    fontFamily: "var(--font-baloo), Georgia, sans-serif",
                     fontSize: "clamp(2rem, 4vw, 3rem)",
                     fontStyle: "italic",
                   }}
@@ -235,21 +240,15 @@ export default function Beranda() {
                 </p>
               </div>
 
-              {/* Wireframe gambar — flex-1 agar tingginya mengikuti kolom kanan */}
-              <div
-                className="relative flex-1 min-h-[180px] rounded-sm overflow-hidden border-2 border-dashed border-granit/40"
-                style={{ background: "#E8E6E0" }}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-40">
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                    <rect x="4" y="4" width="32" height="32" rx="3" stroke="#33503C" strokeWidth="1.5" />
-                    <circle cx="14" cy="15" r="4" stroke="#33503C" strokeWidth="1.5" />
-                    <path d="M4 28 L12 20 L20 26 L28 18 L36 28" stroke="#33503C" strokeWidth="1.5" strokeLinejoin="round" />
-                  </svg>
-                  <p className="text-[11px] font-medium tracking-wider uppercase text-center leading-relaxed" style={{ color: "#33503C" }}>
-                    Foto Komunitas<br />Mapur
-                  </p>
-                </div>
+              {/* Foto komunitas */}
+              <div className="relative flex-1 min-h-[180px] rounded-sm overflow-hidden border-2 border-granit/40">
+                <Image
+                  src="/image/orang-mapur.jpeg"
+                  alt="Komunitas Mapur bersama tim dokumentasi"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover object-center"
+                />
               </div>
             </div>
 
@@ -306,7 +305,7 @@ export default function Beranda() {
               <div key={label} className="border-t-[3px] border-rimba/40 pt-4">
                 <p
                   className="font-semibold text-arang mb-2"
-                  style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.1rem", fontStyle: "italic" }}
+                  style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontSize: "1.1rem", fontStyle: "italic" }}
                 >
                   {judul}
                 </p>
@@ -329,7 +328,7 @@ export default function Beranda() {
               <h2
                 className="font-semibold leading-tight mb-5 text-arang"
                 style={{
-                  fontFamily: "var(--font-cormorant), Georgia, serif",
+                  fontFamily: "var(--font-baloo), Georgia, sans-serif",
                   fontSize: "clamp(2rem, 4vw, 3rem)",
                   fontStyle: "italic",
                 }}

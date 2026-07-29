@@ -87,7 +87,7 @@ export default async function DetailArtikel({
         />
         <h1
           className="text-3xl sm:text-4xl font-semibold text-arang leading-tight mb-4"
-          style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontStyle: "italic" }}
+          style={{ fontFamily: "var(--font-baloo), Georgia, sans-serif", fontStyle: "italic" }}
         >
           {artikel.judul}
         </h1>

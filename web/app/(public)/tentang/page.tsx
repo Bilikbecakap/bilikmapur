@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import TentangSlideshow from "@/components/TentangSlideshow";
 
 export const metadata: Metadata = {
   title: "Tentang — Bilik Mapur",
   description:
-    "Tentang proyek digitalisasi bahasa Mapur — bahasa daerah masyarakat adat Pulau Bangka, dikelola Yayasan Basamudera Budaya Teknologi bersama komunitas.",
+    "Tentang proyek digitalisasi bahasa Mapur — bahasa daerah masyarakat adat Pulau Bangka, dikelola Yayasan Basamudera Budaya Teknologi Indonesia bersama komunitas.",
 };
 
 export default function TentangPage() {
@@ -19,7 +20,7 @@ export default function TentangPage() {
           <h1
             className="font-semibold text-arang mb-2 leading-tight"
             style={{
-              fontFamily: "var(--font-cormorant), Georgia, serif",
+              fontFamily: "var(--font-baloo), Georgia, sans-serif",
               fontSize: "2.25rem",
               fontStyle: "italic",
             }}
@@ -32,93 +33,15 @@ export default function TentangPage() {
           </p>
         </div>
 
-        {/* ── Tentang Bahasa Mapur ── */}
+        {/* ── Dibalik Proyek & Riset Lapangan ── */}
         <section className="mb-16">
-          <div className="grid lg:grid-cols-2 gap-12 items-stretch">
-            {/* Kiri — teks */}
-            <div className="flex flex-col gap-5">
-              <div>
-                <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-rimba mb-3">
-                  Bahasa
-                </p>
-                <h2
-                  className="font-semibold text-arang mb-4 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-cormorant), Georgia, serif",
-                    fontSize: "1.75rem",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Tentang Bahasa Mapur
-                </h2>
-                <div className="flex flex-col gap-4 text-sm leading-relaxed text-teks-sekunder" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
-                  <p>
-                    Bahasa Mapur adalah bahasa daerah yang dituturkan oleh masyarakat adat Mapur
-                    di kawasan Gunung Maras, Kabupaten Bangka, Provinsi Kepulauan Bangka Belitung.
-                    Termasuk dalam rumpun bahasa Austronesia cabang Melayik, bahasa ini berkerabat
-                    erat dengan Melayu Bangka namun menyimpan kosakata, pelafalan, dan ungkapan khas
-                    yang mencerminkan hubungan erat komunitasnya dengan alam sekitar.
-                  </p>
-                  <p>
-                    Penutur bahasa Mapur terpusat di kawasan Dusun Aik Abik dan sekitarnya.
-                    Seperti banyak bahasa daerah di Nusantara, bahasa Mapur menghadapi tekanan
-                    pergeseran bahasa yang nyata — penuturnya menua, sementara generasi muda
-                    kian jarang menggunakannya dalam keseharian.
-                  </p>
-                  <p>
-                    Digitalisasi menjadi salah satu ikhtiar untuk merekam, membakukan, dan
-                    membuka kembali akses terhadap bahasa ini bagi siapa pun yang ingin
-                    mengenal dan mempelajarinya.
-                  </p>
-                </div>
-              </div>
-
-              {/* Fakta singkat */}
-              <div className="grid grid-cols-2 gap-3 mt-auto">
-                {[
-                  { label: "Rumpun", nilai: "Austronesia · Melayik" },
-                  { label: "Wilayah", nilai: "Gunung Maras, Bangka" },
-                  { label: "Status", nilai: "Terancam punah" },
-                  { label: "Pusat tutur", nilai: "Dusun Aik Abik" },
-                ].map(({ label, nilai }) => (
-                  <div key={label} className="border-t-2 border-rimba/30 pt-3">
-                    <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-rimba mb-1">
-                      {label}
-                    </p>
-                    <p className="text-xs text-arang font-medium">{nilai}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Kanan — wireframe foto */}
-            <div
-              className="relative flex-1 min-h-[280px] rounded-sm overflow-hidden border-2 border-dashed border-granit/40"
-              style={{ background: "#E8E6E0" }}
-            >
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-40">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                  <rect x="4" y="4" width="32" height="32" rx="3" stroke="#33503C" strokeWidth="1.5" />
-                  <circle cx="14" cy="15" r="4" stroke="#33503C" strokeWidth="1.5" />
-                  <path d="M4 28 L12 20 L20 26 L28 18 L36 28" stroke="#33503C" strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-                <p className="text-[11px] font-medium tracking-wider uppercase text-center leading-relaxed" style={{ color: "#33503C" }}>
-                  Foto Komunitas<br />Mapur
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Dibalik Proyek ── */}
-        <section className="mb-16 pt-12 border-t-2 border-granit/30">
           <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-rimba mb-3">
-            Penyelenggara
+            Penyelenggara & Riset Lapangan
           </p>
           <h2
-            className="font-semibold text-arang mb-8 leading-tight"
+            className="font-semibold text-arang mb-6 leading-tight"
             style={{
-              fontFamily: "var(--font-cormorant), Georgia, serif",
+              fontFamily: "var(--font-baloo), Georgia, sans-serif",
               fontSize: "1.75rem",
               fontStyle: "italic",
             }}
@@ -126,115 +49,60 @@ export default function TentangPage() {
             Di balik Bilik Mapur
           </h2>
 
-          <div className="grid sm:grid-cols-2 gap-6">
-            {/* Yayasan Basamudera */}
-            <div className="rounded-sm border-2 border-granit/30 p-6 bg-kapur">
-              <div className="w-8 h-[3px] bg-rimba rounded-full mb-5" />
-              <h3
-                className="font-semibold text-arang mb-1"
-                style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.15rem", fontStyle: "italic" }}
-              >
-                Yayasan Basamudera Budaya Teknologi
-              </h3>
-              <p className="text-[10px] font-medium tracking-wide uppercase text-rimba mb-3">
-                Pengelola
-              </p>
-              <p className="text-sm text-teks-sekunder leading-relaxed" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
-                Bilik Mapur dikelola oleh Yayasan Basamudera Budaya Teknologi — sebuah
-                organisasi nirlaba yang berfokus pada pelestarian bahasa dan budaya daerah
-                melalui pendekatan teknologi dan dokumentasi digital.
-              </p>
-            </div>
-
-            {/* Badan Bahasa */}
-            <div className="rounded-sm border-2 border-granit/30 p-6 bg-kapur">
-              <div className="w-8 h-[3px] bg-beras-merah/60 rounded-full mb-5" />
-              <h3
-                className="font-semibold text-arang mb-1"
-                style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.15rem", fontStyle: "italic" }}
-              >
-                Badan Pengembangan dan Pembinaan Bahasa
-              </h3>
-              <p className="text-[10px] font-medium tracking-wide uppercase text-beras-merah mb-3">
-                Didukung oleh
-              </p>
-              <p className="text-sm text-teks-sekunder leading-relaxed" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
-                Proyek ini mendapat dukungan dari Badan Pengembangan dan Pembinaan Bahasa,
-                Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi Republik Indonesia,
-                dalam kerangka upaya pelestarian bahasa daerah secara nasional.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Pengambilan Data ── */}
-        <section className="mb-16 pt-12 border-t-2 border-granit/30">
-          <div className="grid lg:grid-cols-2 gap-12 items-stretch">
+          <div className="grid lg:grid-cols-2 gap-12 items-start mb-10">
             {/* Kiri — teks */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-rimba mb-3">
-                  Riset Lapangan
-                </p>
-                <h2
-                  className="font-semibold text-arang mb-4 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-cormorant), Georgia, serif",
-                    fontSize: "1.75rem",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Pengambilan Data di<br />Dusun Aik Abik
-                </h2>
-                <div className="flex flex-col gap-3 text-sm leading-relaxed text-teks-sekunder" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
-                  <p>
-                    Data bahasa yang tersimpan dalam kamus ini dikumpulkan langsung dari penutur
-                    asli di Dusun Aik Abik — jantung pemukiman komunitas adat Mapur di Pulau Bangka.
-                    Pengambilan data dilakukan melalui sesi wawancara, rekaman tutur, dan pendokumentasian
-                    kosakata bersama tetua dan penutur aktif.
-                  </p>
-                  <p>
-                    Proses riset lapangan ini dilakukan bersama <span className="font-medium text-arang">Yayasan Gebong Mamarong</span> —
-                    lembaga komunitas yang berakar langsung dari masyarakat Mapur dan selama ini
-                    aktif menjaga kelangsungan adat dan bahasa mereka.
-                  </p>
-                </div>
-              </div>
-
-              {/* Mitra */}
-              <div className="mt-auto p-4 rounded-sm border border-granit/30 bg-rumbia/50 flex items-start gap-3">
-                <div className="shrink-0 w-8 h-8 rounded bg-rimba/10 flex items-center justify-center mt-0.5">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-rimba">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-arang mb-0.5">Yayasan Gebong Mamarong</p>
-                  <p className="text-xs text-teks-sekunder leading-relaxed">
-                    Mitra komunitas dalam riset dan pendokumentasian bahasa Mapur di lapangan.
-                  </p>
-                </div>
-              </div>
+            <div className="flex flex-col gap-4 text-base leading-relaxed text-teks-sekunder" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
+              <p>
+                <span className="istilah-mapur">Bahasa Mapur</span> adalah bahasa daerah yang
+                dituturkan oleh masyarakat adat Mapur di kawasan Gunung Maras, Kabupaten Bangka.
+                Termasuk rumpun Austronesia cabang Melayik, bahasa ini menyimpan kosakata dan
+                ungkapan khas yang mencerminkan kedekatan komunitasnya dengan alam. Penuturnya
+                kian menua dan generasi muda semakin jarang menggunakannya — menjadikannya
+                warisan lisan yang perlu segera didokumentasikan.
+              </p>
+              <p>
+                Bilik Mapur hadir untuk merekam, membakukan, dan membuka akses bahasa ini bagi
+                siapa pun yang ingin mempelajarinya. Digagas dan dikelola oleh{" "}
+                <span className="text-arang font-semibold">Yayasan Basamudera Budaya Teknologi Indonesia</span>,
+                bersama <span className="text-arang font-semibold">Yayasan Gebong Memarong</span> yang
+                riset langsung di Dusun Aik Abik melalui wawancara dan pendokumentasian kosakata
+                bersama penutur asli, dengan dukungan{" "}
+                <span className="text-arang font-semibold">Badan Pengembangan dan Pembinaan Bahasa</span>.
+              </p>
             </div>
 
-            {/* Kanan — wireframe foto lapangan */}
-            <div
-              className="relative flex-1 min-h-[260px] rounded-sm overflow-hidden border-2 border-dashed border-granit/40"
-              style={{ background: "#E8E6E0" }}
-            >
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-40">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                  <rect x="4" y="4" width="32" height="32" rx="3" stroke="#33503C" strokeWidth="1.5" />
-                  <circle cx="14" cy="15" r="4" stroke="#33503C" strokeWidth="1.5" />
-                  <path d="M4 28 L12 20 L20 26 L28 18 L36 28" stroke="#33503C" strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-                <p className="text-[11px] font-medium tracking-wider uppercase text-center leading-relaxed" style={{ color: "#33503C" }}>
-                  Foto Riset Lapangan<br />Dusun Aik Abik
-                </p>
-              </div>
+            {/* Kanan — foto bergantian */}
+            <TentangSlideshow />
+          </div>
+
+          {/* Garis kredit penyelenggara & mitra */}
+          <div className="grid sm:grid-cols-3 border-y-2 border-granit/30">
+            <div className="py-5 sm:pr-6 border-b sm:border-b-0 sm:border-r border-granit/30">
+              <div className="w-6 h-[3px] bg-rimba rounded-full mb-3" />
+              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-rimba mb-1.5">
+                Pelopor & Pengelola
+              </p>
+              <p className="text-sm font-medium text-arang leading-snug">
+                Yayasan Basamudera Budaya Teknologi
+              </p>
+            </div>
+            <div className="py-5 sm:px-6 border-b sm:border-b-0 sm:border-r border-granit/30">
+              <div className="w-6 h-[3px] bg-kulit-kayu rounded-full mb-3" />
+              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-kulit-kayu mb-1.5">
+                Mitra Riset Lapangan
+              </p>
+              <p className="text-sm font-medium text-arang leading-snug">
+                Yayasan Gebong Memarong
+              </p>
+            </div>
+            <div className="pt-5 sm:pl-6">
+              <div className="w-6 h-[3px] bg-beras-merah rounded-full mb-3" />
+              <p className="text-[9px] font-semibold tracking-[0.15em] uppercase text-beras-merah mb-1.5">
+                Dukungan
+              </p>
+              <p className="text-sm font-medium text-arang leading-snug">
+                Badan Pengembangan dan Pembinaan Bahasa
+              </p>
             </div>
           </div>
         </section>
@@ -247,7 +115,7 @@ export default function TentangPage() {
           <h2
             className="font-semibold text-arang mb-2 leading-tight"
             style={{
-              fontFamily: "var(--font-cormorant), Georgia, serif",
+              fontFamily: "var(--font-baloo), Georgia, sans-serif",
               fontSize: "1.75rem",
               fontStyle: "italic",
             }}
@@ -267,8 +135,8 @@ export default function TentangPage() {
                 ),
                 ikonExtra: <polyline points="22,6 12,13 2,6" />,
                 label: "Surel",
-                nilai: "bilikmapur@basamudera.id",
-                href: "mailto:bilikmapur@basamudera.id",
+                nilai: "yayasanbasamudera.indonesia@gmail.com",
+                href: "mailto:yayasanbasamudera.indonesia@gmail.com",
               },
               {
                 ikon: (
