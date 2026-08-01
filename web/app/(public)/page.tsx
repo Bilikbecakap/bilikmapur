@@ -48,16 +48,15 @@ export default function Beranda() {
         />
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Teks */}
-            <div>
-              {/* Overline */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:items-center">
+            {/* Overline + judul */}
+            <div className="lg:col-start-1 lg:row-start-1">
               <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-rimba mb-8">
                 Pulau Bangka · Kaki Gunung Maras
               </p>
 
               <h1
-                className="font-semibold leading-[1.08] mb-6 text-arang"
+                className="font-semibold leading-[1.08] text-arang"
                 style={{
                   fontFamily: "var(--font-baloo), Georgia, sans-serif",
                   fontSize: "clamp(2.625rem, 5.25vw, 4.375rem)",
@@ -67,7 +66,15 @@ export default function Beranda() {
                 Merawat tutur<br />
                 orang <span className="istilah-mapur">Mapur</span>.
               </h1>
+            </div>
 
+            {/* Foto */}
+            <div className="lg:col-start-2 lg:row-start-1 lg:row-span-2 my-8 lg:my-0 max-w-sm mx-auto w-full lg:max-w-none">
+              <HeroSlideshow />
+            </div>
+
+            {/* Deskripsi + tombol */}
+            <div className="lg:col-start-1 lg:row-start-2">
               <p className="text-base leading-relaxed text-teks-sekunder mb-10 max-w-lg" style={{ fontFamily: "var(--font-lora), Georgia, serif" }}>
                 Ruang digital untuk mempelajari, mendokumentasikan, dan mewariskan
                 bahasa serta budaya masyarakat adat Mapur — dari kosakata sehari-hari
@@ -86,11 +93,6 @@ export default function Beranda() {
                   </svg>
                 </Link>
               </div>
-            </div>
-
-            {/* Sisi kanan — foto */}
-            <div className="hidden lg:block">
-              <HeroSlideshow />
             </div>
           </div>
         </div>
