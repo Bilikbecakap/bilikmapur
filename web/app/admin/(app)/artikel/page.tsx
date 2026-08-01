@@ -3,13 +3,24 @@ import Link from "next/link";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Artikel" };
 export const dynamic = "force-dynamic";
 
 async function deleteArtikel(formData: FormData) {
   "use server";
-  await pool.query("DELETE FROM artikel WHERE id = $1", [formData.get("id")]);
+  const session = await requireSessionAction();
+  const id = formData.get("id") as string;
+  await withActivityLog(session, { aksi: "hapus", tipeKonten: "artikel", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE artikel SET dihapus_pada = now(), dihapus_oleh = $2
+       WHERE id = $1 AND dihapus_pada IS NULL RETURNING judul`,
+      [id, Number(session.sub)]
+    );
+    return rows[0] ? { ringkasan: `Artikel "${rows[0].judul}"` } : null;
+  });
   revalidatePath("/admin/artikel");
 }
 
@@ -17,7 +28,7 @@ export default async function AdminArtikelPage() {
   const { rows } = await pool.query(
     `SELECT id, judul, slug, penulis, status,
             to_char(dibuat_pada,'DD Mon YYYY') AS tgl
-     FROM artikel ORDER BY dibuat_pada DESC`
+     FROM artikel WHERE dihapus_pada IS NULL ORDER BY dibuat_pada DESC`
   );
 
   return (

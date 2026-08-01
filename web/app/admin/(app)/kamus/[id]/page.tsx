@@ -2,33 +2,39 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Edit Lema" };
 
 async function updateEntry(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  await pool.query(
-    `UPDATE entries SET
-      lema=$1, kategori_id=$2, arti_indonesia=$3,
-      contoh_kalimat_mapur=$4, contoh_kalimat_indonesia=$5,
-      pelafalan_ipa=$6, audio=$7, catatan=$8, sumber=$9,
-      status=$10, diperbarui_pada=now()
-     WHERE id=$11`,
-    [
-      (formData.get("lema") as string).trim(),
-      (formData.get("kategori_id") as string) || null,
-      (formData.get("arti_indonesia") as string).trim(),
-      (formData.get("contoh_kalimat_mapur") as string).trim() || null,
-      (formData.get("contoh_kalimat_indonesia") as string).trim() || null,
-      (formData.get("pelafalan_ipa") as string).trim() || null,
-      (formData.get("audio") as string).trim() || null,
-      (formData.get("catatan") as string).trim() || null,
-      (formData.get("sumber") as string).trim() || null,
-      formData.get("status") as string,
-      id,
-    ]
-  );
+  await withActivityLog(session, { aksi: "edit", tipeKonten: "entry", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE entries SET
+        lema=$1, kategori_id=$2, arti_indonesia=$3,
+        contoh_kalimat_mapur=$4, contoh_kalimat_indonesia=$5,
+        pelafalan_ipa=$6, audio=$7, catatan=$8, sumber=$9,
+        status=$10, diperbarui_pada=now()
+       WHERE id=$11 AND dihapus_pada IS NULL RETURNING lema`,
+      [
+        (formData.get("lema") as string).trim(),
+        (formData.get("kategori_id") as string) || null,
+        (formData.get("arti_indonesia") as string).trim(),
+        (formData.get("contoh_kalimat_mapur") as string).trim() || null,
+        (formData.get("contoh_kalimat_indonesia") as string).trim() || null,
+        (formData.get("pelafalan_ipa") as string).trim() || null,
+        (formData.get("audio") as string).trim() || null,
+        (formData.get("catatan") as string).trim() || null,
+        (formData.get("sumber") as string).trim() || null,
+        formData.get("status") as string,
+        id,
+      ]
+    );
+    return rows[0] ? { ringkasan: `Lema "${rows[0].lema}"` } : null;
+  });
   redirect("/admin/kamus");
 }
 
@@ -36,10 +42,10 @@ export default async function EditLemaPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const [{ rows }, { rows: kategoriList }] = await Promise.all([
     pool.query(
-      `SELECT e.*, k.nama AS kategori_nama FROM entries e LEFT JOIN kategori k ON k.id = e.kategori_id WHERE e.id = $1`,
+      `SELECT e.*, k.nama AS kategori_nama FROM entries e LEFT JOIN kategori k ON k.id = e.kategori_id WHERE e.id = $1 AND e.dihapus_pada IS NULL`,
       [id]
     ),
-    pool.query("SELECT id, nama FROM kategori ORDER BY urutan, nama"),
+    pool.query("SELECT id, nama FROM kategori WHERE dihapus_pada IS NULL ORDER BY urutan, nama"),
   ]);
 
   if (!rows[0]) notFound();

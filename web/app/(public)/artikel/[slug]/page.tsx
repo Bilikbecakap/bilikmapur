@@ -35,7 +35,7 @@ async function getArtikel(slug: string): Promise<Artikel | null> {
     `SELECT id, judul, ringkasan, konten, penulis,
             gambar_sampul::text, warna_penanda, dibuat_pada, diperbarui_pada
      FROM artikel
-     WHERE slug = $1 AND status = 'published'`,
+     WHERE slug = $1 AND status = 'published' AND dihapus_pada IS NULL`,
     [slug]
   );
   return rows[0] ?? null;

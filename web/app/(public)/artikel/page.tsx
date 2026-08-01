@@ -33,7 +33,7 @@ export default async function ArtikelPage() {
   const { rows: artikelList } = await pool.query<ArtikelRow>(
     `SELECT id, judul, slug, ringkasan, penulis, warna_penanda, dibuat_pada
      FROM artikel
-     WHERE status = 'published'
+     WHERE status = 'published' AND dihapus_pada IS NULL
      ORDER BY dibuat_pada DESC`
   );
 

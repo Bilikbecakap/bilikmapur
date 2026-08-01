@@ -21,7 +21,7 @@ export default async function UsulanPage({
   const targetId = (sp.target as string) ?? "";
 
   const { rows: kategoriList } = await pool.query(
-    "SELECT id, nama, slug FROM kategori ORDER BY urutan, nama"
+    "SELECT id, nama, slug FROM kategori WHERE dihapus_pada IS NULL ORDER BY urutan, nama"
   );
 
   let entryAwal = null;
@@ -33,7 +33,7 @@ export default async function UsulanPage({
               e.catatan, e.sumber
        FROM entries e
        LEFT JOIN kategori k ON k.id = e.kategori_id
-       WHERE e.id = $1 AND e.status = 'published'`,
+       WHERE e.id = $1 AND e.status = 'published' AND e.dihapus_pada IS NULL`,
       [targetId]
     );
     if (!rows[0]) return notFound();

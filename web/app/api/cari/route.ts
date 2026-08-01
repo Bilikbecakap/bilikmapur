@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
        FROM entries e
        LEFT JOIN kategori k ON k.id = e.kategori_id
        WHERE e.status = 'published'
+         AND e.dihapus_pada IS NULL
          AND (
            e.search @@ websearch_to_tsquery('simple', $1)
            OR e.lema % $1

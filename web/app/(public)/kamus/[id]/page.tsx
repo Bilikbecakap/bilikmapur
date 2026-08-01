@@ -30,7 +30,7 @@ async function getEntry(id: string): Promise<EntryDetail | null> {
             k.nama AS kategori
      FROM entries e
      LEFT JOIN kategori k ON k.id = e.kategori_id
-     WHERE e.id = $1 AND e.status = 'published'`,
+     WHERE e.id = $1 AND e.status = 'published' AND e.dihapus_pada IS NULL`,
     [id]
   );
   return rows[0] ?? null;

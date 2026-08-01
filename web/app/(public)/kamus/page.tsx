@@ -49,13 +49,13 @@ export default async function KamusPage({
 
   const [kategoriResult, hurufResult] = await Promise.all([
     pool.query<KategoriRow>(
-      "SELECT id, nama, slug FROM kategori ORDER BY urutan, nama"
+      "SELECT id, nama, slug FROM kategori WHERE dihapus_pada IS NULL ORDER BY urutan, nama"
     ),
     q
       ? Promise.resolve({ rows: [] as HurufRow[] })
       : pool.query<HurufRow>(
           `SELECT lower(left(lema, 1)) AS huruf, COUNT(*) AS jumlah
-           FROM entries WHERE status = 'published'
+           FROM entries WHERE status = 'published' AND dihapus_pada IS NULL
            GROUP BY 1 ORDER BY 1`
         ),
   ]);
@@ -63,7 +63,7 @@ export default async function KamusPage({
   const kategoriList = kategoriResult.rows;
   const hurufAda = new Set(hurufResult.rows.map((r) => r.huruf));
 
-  const conditions: string[] = ["e.status = 'published'"];
+  const conditions: string[] = ["e.status = 'published'", "e.dihapus_pada IS NULL"];
   const params: (string | number)[] = [];
 
   if (q) {

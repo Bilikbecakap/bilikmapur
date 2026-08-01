@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
-import { getSession } from "@/lib/auth";
+import { requireAdminAction, requireAdminPage } from "@/lib/permissions";
 import DeleteButton from "@/components/admin/DeleteButton";
+import ChangePasswordButton from "@/components/admin/ChangePasswordButton";
 
 export const metadata: Metadata = { title: "Pengguna" };
 export const dynamic = "force-dynamic";
 
+// Hanya admin yang boleh mengelola pengguna lain — lihat CLAUDE.md §5.
 async function createUser(formData: FormData) {
   "use server";
+  await requireAdminAction();
   const email = (formData.get("email") as string).toLowerCase().trim();
   const nama = (formData.get("nama") as string).trim();
   const password = formData.get("password") as string;
@@ -25,15 +28,16 @@ async function createUser(formData: FormData) {
 
 async function deleteUser(formData: FormData) {
   "use server";
+  const session = await requireAdminAction();
   const id = formData.get("id") as string;
-  const session = await getSession();
-  if (String(session?.sub) === id) return; // jangan hapus diri sendiri
+  if (String(session.sub) === id) return; // jangan hapus diri sendiri
   await pool.query("DELETE FROM users WHERE id = $1", [id]);
   revalidatePath("/admin/users");
 }
 
 async function changePassword(formData: FormData) {
   "use server";
+  await requireAdminAction();
   const id = formData.get("id") as string;
   const password = formData.get("password") as string;
   if (!password || password.length < 6) return;
@@ -43,10 +47,10 @@ async function changePassword(formData: FormData) {
 }
 
 export default async function UsersPage() {
-  const [{ rows: users }, session] = await Promise.all([
-    pool.query("SELECT id, email, nama, peran, to_char(dibuat_pada,'DD Mon YYYY') AS tgl FROM users ORDER BY dibuat_pada ASC"),
-    getSession(),
-  ]);
+  const session = await requireAdminPage();
+  const { rows: users } = await pool.query(
+    "SELECT id, email, nama, peran, to_char(dibuat_pada,'DD Mon YYYY') AS tgl FROM users ORDER BY dibuat_pada ASC"
+  );
 
   return (
     <div className="p-8 max-w-4xl">
@@ -82,18 +86,7 @@ export default async function UsersPage() {
                 <td className="px-4 py-3 text-teks-sekunder text-xs hidden md:table-cell">{u.tgl}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-3">
-                    <details className="relative">
-                      <summary className="text-xs text-teks-sekunder hover:text-arang transition-colors cursor-pointer list-none">
-                        Ganti pw
-                      </summary>
-                      <div className="absolute right-0 top-6 z-10 bg-white border border-granit/25 rounded-lg shadow-lg p-3 w-52">
-                        <form action={changePassword} className="space-y-2">
-                          <input type="hidden" name="id" value={u.id} />
-                          <input name="password" type="password" required minLength={6} placeholder="Password baru" className="w-full px-2 py-1.5 rounded border border-granit/30 text-xs text-arang focus:outline-none" />
-                          <button type="submit" className="w-full py-1.5 rounded bg-arang text-kapur text-xs font-medium hover:opacity-90">Simpan</button>
-                        </form>
-                      </div>
-                    </details>
+                    <ChangePasswordButton userId={String(u.id)} userEmail={u.email} formAction={changePassword} />
                     {String(u.id) !== session?.sub && (
                       <DeleteButton
                         formAction={deleteUser}

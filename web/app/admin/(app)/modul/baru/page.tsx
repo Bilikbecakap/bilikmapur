@@ -1,32 +1,37 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Upload Modul" };
 
 async function createModul(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const judul = (formData.get("judul") as string).trim();
   const slug = (formData.get("slug") as string).trim();
   const filePdf = (formData.get("file_pdf") as string).trim();
   if (!judul || !slug || !filePdf) return;
 
-  await pool.query(
-    `INSERT INTO modul (judul, slug, deskripsi, file_pdf, gambar_sampul, jumlah_halaman, kategori, warna_penanda, urutan, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [
-      judul, slug,
-      (formData.get("deskripsi") as string).trim() || null,
-      filePdf,
-      (formData.get("gambar_sampul") as string).trim() || null,
-      parseInt(formData.get("jumlah_halaman") as string, 10) || null,
-      (formData.get("kategori") as string).trim() || null,
-      (formData.get("warna_penanda") as string) || null,
-      parseInt(formData.get("urutan") as string, 10) || 0,
-      formData.get("status") as string,
-    ]
-  );
+  await withActivityLog(session, { aksi: "tambah", tipeKonten: "modul" }, async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO modul (judul, slug, deskripsi, file_pdf, gambar_sampul, jumlah_halaman, kategori, warna_penanda, urutan, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id, judul`,
+      [
+        judul, slug,
+        (formData.get("deskripsi") as string).trim() || null,
+        filePdf,
+        (formData.get("gambar_sampul") as string).trim() || null,
+        parseInt(formData.get("jumlah_halaman") as string, 10) || null,
+        (formData.get("kategori") as string).trim() || null,
+        (formData.get("warna_penanda") as string) || null,
+        parseInt(formData.get("urutan") as string, 10) || 0,
+        formData.get("status") as string,
+      ]
+    );
+    return { ringkasan: `Modul "${rows[0].judul}"`, targetId: rows[0].id };
+  });
   redirect("/admin/modul");
 }
 

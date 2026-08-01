@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog, type AksiLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Usulan" };
 export const dynamic = "force-dynamic";
@@ -16,31 +18,51 @@ interface Sub {
 
 async function approveAction(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  const aksi = formData.get("aksi") as string;
+  const aksi = formData.get("aksi") as AksiLog;
   const target = formData.get("target_entry_id") as string | null;
   const dataRaw = formData.get("data_usulan") as string;
   const data = JSON.parse(dataRaw);
 
-  if (aksi === "tambah") {
-    await pool.query(
-      `INSERT INTO entries (lema, kategori_id, arti_indonesia, contoh_kalimat_mapur, contoh_kalimat_indonesia, catatan, sumber)
-       VALUES ($1, (SELECT id FROM kategori WHERE slug = $2 LIMIT 1), $3, $4, $5, $6, $7)`,
-      [data.lema, data.kategori_slug ?? null, data.arti_indonesia, data.contoh_kalimat_mapur ?? null, data.contoh_kalimat_indonesia ?? null, data.catatan ?? null, data.sumber ?? null]
-    );
-  } else if (aksi === "edit" && target) {
-    await pool.query(
-      `UPDATE entries SET lema=$1, arti_indonesia=$2, contoh_kalimat_mapur=$3, contoh_kalimat_indonesia=$4, catatan=$5, sumber=$6, diperbarui_pada=now() WHERE id=$7`,
-      [data.lema, data.arti_indonesia, data.contoh_kalimat_mapur ?? null, data.contoh_kalimat_indonesia ?? null, data.catatan ?? null, data.sumber ?? null, target]
-    );
-  } else if (aksi === "hapus" && target) {
-    await pool.query("DELETE FROM entries WHERE id = $1", [target]);
-  }
+  await withActivityLog(session, { aksi, tipeKonten: "entry", targetId: target ?? undefined }, async (client) => {
+    let ringkasan: string | null = null;
+    let targetId: string | undefined;
 
-  await pool.query(
-    "UPDATE submissions SET status='approved', diputuskan_pada=now() WHERE id=$1",
-    [id]
-  );
+    if (aksi === "tambah") {
+      const { rows } = await client.query(
+        `INSERT INTO entries (lema, kategori_id, arti_indonesia, contoh_kalimat_mapur, contoh_kalimat_indonesia, catatan, sumber)
+         VALUES ($1, (SELECT id FROM kategori WHERE slug = $2 AND dihapus_pada IS NULL LIMIT 1), $3, $4, $5, $6, $7)
+         RETURNING id, lema`,
+        [data.lema, data.kategori_slug ?? null, data.arti_indonesia, data.contoh_kalimat_mapur ?? null, data.contoh_kalimat_indonesia ?? null, data.catatan ?? null, data.sumber ?? null]
+      );
+      ringkasan = `Lema "${rows[0].lema}" (dari usulan)`;
+      targetId = rows[0].id;
+    } else if (aksi === "edit" && target) {
+      const { rows } = await client.query(
+        `UPDATE entries SET lema=$1, arti_indonesia=$2, contoh_kalimat_mapur=$3, contoh_kalimat_indonesia=$4, catatan=$5, sumber=$6, diperbarui_pada=now()
+         WHERE id=$7 AND dihapus_pada IS NULL RETURNING lema`,
+        [data.lema, data.arti_indonesia, data.contoh_kalimat_mapur ?? null, data.contoh_kalimat_indonesia ?? null, data.catatan ?? null, data.sumber ?? null, target]
+      );
+      if (rows[0]) ringkasan = `Lema "${rows[0].lema}" (dari usulan)`;
+    } else if (aksi === "hapus" && target) {
+      const { rows } = await client.query(
+        `UPDATE entries SET dihapus_pada = now(), dihapus_oleh = $2
+         WHERE id = $1 AND dihapus_pada IS NULL RETURNING lema`,
+        [target, Number(session.sub)]
+      );
+      if (rows[0]) ringkasan = `Lema "${rows[0].lema}" (dari usulan)`;
+    }
+
+    if (!ringkasan) return null;
+
+    await client.query(
+      "UPDATE submissions SET status='approved', diputuskan_pada=now() WHERE id=$1",
+      [id]
+    );
+    return { ringkasan, targetId };
+  });
+
   revalidatePath("/admin/usulan");
 }
 

@@ -3,19 +3,30 @@ import Link from "next/link";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Video" };
 export const dynamic = "force-dynamic";
 
 async function deleteVideo(formData: FormData) {
   "use server";
-  await pool.query("DELETE FROM video WHERE id = $1", [formData.get("id")]);
+  const session = await requireSessionAction();
+  const id = formData.get("id") as string;
+  await withActivityLog(session, { aksi: "hapus", tipeKonten: "video", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE video SET dihapus_pada = now(), dihapus_oleh = $2
+       WHERE id = $1 AND dihapus_pada IS NULL RETURNING judul`,
+      [id, Number(session.sub)]
+    );
+    return rows[0] ? { ringkasan: `Video "${rows[0].judul}"` } : null;
+  });
   revalidatePath("/admin/video");
 }
 
 export default async function AdminVideoPage() {
   const { rows } = await pool.query(
-    "SELECT id, judul, youtube_id, status, to_char(dibuat_pada,'DD Mon YYYY') AS tgl FROM video ORDER BY dibuat_pada DESC"
+    "SELECT id, judul, youtube_id, status, to_char(dibuat_pada,'DD Mon YYYY') AS tgl FROM video WHERE dihapus_pada IS NULL ORDER BY dibuat_pada DESC"
   );
 
   return (

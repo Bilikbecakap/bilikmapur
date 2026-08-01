@@ -28,7 +28,7 @@ export default async function ModulPage() {
     `SELECT id, judul, slug, deskripsi, gambar_sampul::text,
             jumlah_halaman, kategori, warna_penanda
      FROM modul
-     WHERE status = 'published'
+     WHERE status = 'published' AND dihapus_pada IS NULL
      ORDER BY urutan ASC, dibuat_pada DESC`
   );
 

@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import pool from "@/lib/db";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Tambah Video" };
 
 async function createVideo(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const judul = (formData.get("judul") as string).trim();
   const youtubeId = (formData.get("youtube_id") as string).trim();
   if (!judul || !youtubeId) return;
 
-  await pool.query(
-    "INSERT INTO video (judul, deskripsi, youtube_id, status) VALUES ($1,$2,$3,$4)",
-    [judul, (formData.get("deskripsi") as string).trim() || null, youtubeId, formData.get("status")]
-  );
+  await withActivityLog(session, { aksi: "tambah", tipeKonten: "video" }, async (client) => {
+    const { rows } = await client.query(
+      "INSERT INTO video (judul, deskripsi, youtube_id, status) VALUES ($1,$2,$3,$4) RETURNING id, judul",
+      [judul, (formData.get("deskripsi") as string).trim() || null, youtubeId, formData.get("status")]
+    );
+    return { ringkasan: `Video "${rows[0].judul}"`, targetId: rows[0].id };
+  });
   redirect("/admin/video");
 }
 

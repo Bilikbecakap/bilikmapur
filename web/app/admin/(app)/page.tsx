@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const [entries, submissions, artikel, video, modul] = await Promise.all([
-    pool.query("SELECT COUNT(*) FROM entries WHERE status = 'published'"),
+    pool.query("SELECT COUNT(*) FROM entries WHERE status = 'published' AND dihapus_pada IS NULL"),
     pool.query("SELECT COUNT(*) FROM submissions WHERE status = 'pending'"),
-    pool.query("SELECT COUNT(*) FROM artikel WHERE status = 'published'"),
-    pool.query("SELECT COUNT(*) FROM video WHERE status = 'published'"),
-    pool.query("SELECT COUNT(*) FROM modul WHERE status = 'published'"),
+    pool.query("SELECT COUNT(*) FROM artikel WHERE status = 'published' AND dihapus_pada IS NULL"),
+    pool.query("SELECT COUNT(*) FROM video WHERE status = 'published' AND dihapus_pada IS NULL"),
+    pool.query("SELECT COUNT(*) FROM modul WHERE status = 'published' AND dihapus_pada IS NULL"),
   ]);
 
   const stats = [

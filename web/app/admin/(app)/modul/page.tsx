@@ -3,19 +3,30 @@ import Link from "next/link";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Modul" };
 export const dynamic = "force-dynamic";
 
 async function deleteModul(formData: FormData) {
   "use server";
-  await pool.query("DELETE FROM modul WHERE id = $1", [formData.get("id")]);
+  const session = await requireSessionAction();
+  const id = formData.get("id") as string;
+  await withActivityLog(session, { aksi: "hapus", tipeKonten: "modul", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE modul SET dihapus_pada = now(), dihapus_oleh = $2
+       WHERE id = $1 AND dihapus_pada IS NULL RETURNING judul`,
+      [id, Number(session.sub)]
+    );
+    return rows[0] ? { ringkasan: `Modul "${rows[0].judul}"` } : null;
+  });
   revalidatePath("/admin/modul");
 }
 
 export default async function AdminModulPage() {
   const { rows } = await pool.query(
-    "SELECT id, judul, slug, kategori, jumlah_halaman, status, urutan FROM modul ORDER BY urutan ASC, dibuat_pada DESC"
+    "SELECT id, judul, slug, kategori, jumlah_halaman, status, urutan FROM modul WHERE dihapus_pada IS NULL ORDER BY urutan ASC, dibuat_pada DESC"
   );
 
   return (

@@ -16,7 +16,7 @@ export default async function VideoPage() {
   const { rows: videoList } = await pool.query<VideoRow>(
     `SELECT id, judul, deskripsi, youtube_id
      FROM video
-     WHERE status = 'published'
+     WHERE status = 'published' AND dihapus_pada IS NULL
      ORDER BY dibuat_pada DESC`
   );
 

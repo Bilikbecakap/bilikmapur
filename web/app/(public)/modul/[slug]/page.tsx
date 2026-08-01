@@ -27,7 +27,7 @@ async function getModul(slug: string): Promise<Modul | null> {
     `SELECT id, judul, deskripsi, file_pdf::text, gambar_sampul::text,
             jumlah_halaman, kategori, warna_penanda, dibuat_pada
      FROM modul
-     WHERE slug = $1 AND status = 'published'`,
+     WHERE slug = $1 AND status = 'published' AND dihapus_pada IS NULL`,
     [slug]
   );
   return rows[0] ?? null;

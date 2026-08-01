@@ -2,36 +2,42 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Edit Modul" };
 
 async function updateModul(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  await pool.query(
-    `UPDATE modul SET judul=$1, slug=$2, deskripsi=$3, file_pdf=$4, gambar_sampul=$5,
-      jumlah_halaman=$6, kategori=$7, warna_penanda=$8, urutan=$9, status=$10, diperbarui_pada=now()
-     WHERE id=$11`,
-    [
-      (formData.get("judul") as string).trim(),
-      (formData.get("slug") as string).trim(),
-      (formData.get("deskripsi") as string).trim() || null,
-      (formData.get("file_pdf") as string).trim(),
-      (formData.get("gambar_sampul") as string).trim() || null,
-      parseInt(formData.get("jumlah_halaman") as string, 10) || null,
-      (formData.get("kategori") as string).trim() || null,
-      (formData.get("warna_penanda") as string) || null,
-      parseInt(formData.get("urutan") as string, 10) || 0,
-      formData.get("status") as string,
-      id,
-    ]
-  );
+  await withActivityLog(session, { aksi: "edit", tipeKonten: "modul", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE modul SET judul=$1, slug=$2, deskripsi=$3, file_pdf=$4, gambar_sampul=$5,
+        jumlah_halaman=$6, kategori=$7, warna_penanda=$8, urutan=$9, status=$10, diperbarui_pada=now()
+       WHERE id=$11 AND dihapus_pada IS NULL RETURNING judul`,
+      [
+        (formData.get("judul") as string).trim(),
+        (formData.get("slug") as string).trim(),
+        (formData.get("deskripsi") as string).trim() || null,
+        (formData.get("file_pdf") as string).trim(),
+        (formData.get("gambar_sampul") as string).trim() || null,
+        parseInt(formData.get("jumlah_halaman") as string, 10) || null,
+        (formData.get("kategori") as string).trim() || null,
+        (formData.get("warna_penanda") as string) || null,
+        parseInt(formData.get("urutan") as string, 10) || 0,
+        formData.get("status") as string,
+        id,
+      ]
+    );
+    return rows[0] ? { ringkasan: `Modul "${rows[0].judul}"` } : null;
+  });
   redirect("/admin/modul");
 }
 
 export default async function EditModulPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { rows } = await pool.query("SELECT * FROM modul WHERE id = $1", [id]);
+  const { rows } = await pool.query("SELECT * FROM modul WHERE id = $1 AND dihapus_pada IS NULL", [id]);
   if (!rows[0]) notFound();
   const m = rows[0];
 

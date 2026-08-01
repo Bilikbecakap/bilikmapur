@@ -1,28 +1,35 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import pool from "@/lib/db";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Edit Video" };
 
 async function updateVideo(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  await pool.query(
-    "UPDATE video SET judul=$1, youtube_id=$2, deskripsi=$3, status=$4 WHERE id=$5",
-    [
-      (formData.get("judul") as string).trim(),
-      (formData.get("youtube_id") as string).trim(),
-      (formData.get("deskripsi") as string).trim() || null,
-      formData.get("status"),
-      id,
-    ]
-  );
+  await withActivityLog(session, { aksi: "edit", tipeKonten: "video", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE video SET judul=$1, youtube_id=$2, deskripsi=$3, status=$4
+       WHERE id=$5 AND dihapus_pada IS NULL RETURNING judul`,
+      [
+        (formData.get("judul") as string).trim(),
+        (formData.get("youtube_id") as string).trim(),
+        (formData.get("deskripsi") as string).trim() || null,
+        formData.get("status"),
+        id,
+      ]
+    );
+    return rows[0] ? { ringkasan: `Video "${rows[0].judul}"` } : null;
+  });
   redirect("/admin/video");
 }
 
 export default async function EditVideoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { rows } = await pool.query("SELECT * FROM video WHERE id = $1", [id]);
+  const { rows } = await pool.query("SELECT * FROM video WHERE id = $1 AND dihapus_pada IS NULL", [id]);
   if (!rows[0]) notFound();
   const v = rows[0];
 

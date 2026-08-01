@@ -3,27 +3,33 @@ import { redirect } from "next/navigation";
 import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Tulis Artikel" };
 
 async function createArtikel(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const judul = (formData.get("judul") as string).trim();
   const slug = (formData.get("slug") as string).trim();
   if (!judul || !slug) return;
 
-  await pool.query(
-    `INSERT INTO artikel (judul, slug, ringkasan, konten, penulis, gambar_sampul, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [
-      judul, slug,
-      (formData.get("ringkasan") as string).trim() || null,
-      (formData.get("konten") as string).trim() || null,
-      (formData.get("penulis") as string).trim() || null,
-      (formData.get("gambar_sampul") as string).trim() || null,
-      formData.get("status") as string,
-    ]
-  );
+  await withActivityLog(session, { aksi: "tambah", tipeKonten: "artikel" }, async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO artikel (judul, slug, ringkasan, konten, penulis, gambar_sampul, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, judul`,
+      [
+        judul, slug,
+        (formData.get("ringkasan") as string).trim() || null,
+        (formData.get("konten") as string).trim() || null,
+        (formData.get("penulis") as string).trim() || null,
+        (formData.get("gambar_sampul") as string).trim() || null,
+        formData.get("status") as string,
+      ]
+    );
+    return { ringkasan: `Artikel "${rows[0].judul}"`, targetId: rows[0].id };
+  });
   redirect("/admin/artikel");
 }
 

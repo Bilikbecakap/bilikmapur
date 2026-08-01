@@ -2,28 +2,42 @@ import type { Metadata } from "next";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Kategori Kamus" };
 export const dynamic = "force-dynamic";
 
 async function createKategori(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const nama = (formData.get("nama") as string).trim();
   const slug = (formData.get("slug") as string).trim().toLowerCase().replace(/\s+/g, "-");
   const deskripsi = (formData.get("deskripsi") as string).trim();
   const urutan = parseInt(formData.get("urutan") as string, 10) || 0;
   if (!nama || !slug) return;
-  await pool.query(
-    "INSERT INTO kategori (nama, slug, deskripsi, urutan) VALUES ($1,$2,$3,$4) ON CONFLICT (slug) DO NOTHING",
-    [nama, slug, deskripsi || null, urutan]
-  );
+  await withActivityLog(session, { aksi: "tambah", tipeKonten: "kategori" }, async (client) => {
+    const { rows } = await client.query(
+      "INSERT INTO kategori (nama, slug, deskripsi, urutan) VALUES ($1,$2,$3,$4) ON CONFLICT (slug) DO NOTHING RETURNING id, nama",
+      [nama, slug, deskripsi || null, urutan]
+    );
+    return rows[0] ? { ringkasan: `Kategori "${rows[0].nama}"`, targetId: String(rows[0].id) } : null;
+  });
   revalidatePath("/admin/kategori");
 }
 
 async function deleteKategori(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  await pool.query("DELETE FROM kategori WHERE id = $1", [id]);
+  await withActivityLog(session, { aksi: "hapus", tipeKonten: "kategori", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE kategori SET dihapus_pada = now(), dihapus_oleh = $2
+       WHERE id = $1 AND dihapus_pada IS NULL RETURNING nama`,
+      [Number(id), Number(session.sub)]
+    );
+    return rows[0] ? { ringkasan: `Kategori "${rows[0].nama}"` } : null;
+  });
   revalidatePath("/admin/kategori");
 }
 
@@ -38,7 +52,11 @@ async function updateUrutan(formData: FormData) {
 
 export default async function KategoriPage() {
   const { rows } = await pool.query(
-    "SELECT k.id, k.nama, k.slug, k.deskripsi, k.urutan, COUNT(e.id)::int AS jumlah_lema FROM kategori k LEFT JOIN entries e ON e.kategori_id = k.id GROUP BY k.id ORDER BY k.urutan, k.nama"
+    `SELECT k.id, k.nama, k.slug, k.deskripsi, k.urutan, COUNT(e.id)::int AS jumlah_lema
+     FROM kategori k
+     LEFT JOIN entries e ON e.kategori_id = k.id AND e.dihapus_pada IS NULL
+     WHERE k.dihapus_pada IS NULL
+     GROUP BY k.id ORDER BY k.urutan, k.nama`
   );
 
   return (

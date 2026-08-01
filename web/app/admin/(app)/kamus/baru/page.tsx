@@ -1,36 +1,42 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import pool from "@/lib/db";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Tambah Lema" };
 
 async function createEntry(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const lema = (formData.get("lema") as string).trim();
   const arti = (formData.get("arti_indonesia") as string).trim();
   const kategoriId = formData.get("kategori_id") as string | null;
   if (!lema || !arti) return;
 
-  await pool.query(
-    `INSERT INTO entries (lema, kategori_id, arti_indonesia, contoh_kalimat_mapur, contoh_kalimat_indonesia, pelafalan_ipa, catatan, sumber, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    [
-      lema,
-      kategoriId || null,
-      arti,
-      (formData.get("contoh_kalimat_mapur") as string).trim() || null,
-      (formData.get("contoh_kalimat_indonesia") as string).trim() || null,
-      (formData.get("pelafalan_ipa") as string).trim() || null,
-      (formData.get("catatan") as string).trim() || null,
-      (formData.get("sumber") as string).trim() || null,
-      formData.get("status") as string || "published",
-    ]
-  );
+  await withActivityLog(session, { aksi: "tambah", tipeKonten: "entry" }, async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO entries (lema, kategori_id, arti_indonesia, contoh_kalimat_mapur, contoh_kalimat_indonesia, pelafalan_ipa, catatan, sumber, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, lema`,
+      [
+        lema,
+        kategoriId || null,
+        arti,
+        (formData.get("contoh_kalimat_mapur") as string).trim() || null,
+        (formData.get("contoh_kalimat_indonesia") as string).trim() || null,
+        (formData.get("pelafalan_ipa") as string).trim() || null,
+        (formData.get("catatan") as string).trim() || null,
+        (formData.get("sumber") as string).trim() || null,
+        formData.get("status") as string || "published",
+      ]
+    );
+    return { ringkasan: `Lema "${rows[0].lema}"`, targetId: rows[0].id };
+  });
   redirect("/admin/kamus");
 }
 
 export default async function TambahLemaPage() {
-  const { rows: kategoriList } = await pool.query("SELECT id, nama FROM kategori ORDER BY urutan, nama");
+  const { rows: kategoriList } = await pool.query("SELECT id, nama FROM kategori WHERE dihapus_pada IS NULL ORDER BY urutan, nama");
 
   return (
     <div className="p-8 max-w-2xl">

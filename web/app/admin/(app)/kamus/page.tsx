@@ -3,14 +3,24 @@ import Link from "next/link";
 import pool from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { requireSessionAction } from "@/lib/permissions";
+import { withActivityLog } from "@/lib/activityLog";
 
 export const metadata: Metadata = { title: "Kamus" };
 export const dynamic = "force-dynamic";
 
 async function deleteEntry(formData: FormData) {
   "use server";
+  const session = await requireSessionAction();
   const id = formData.get("id") as string;
-  await pool.query("DELETE FROM entries WHERE id = $1", [id]);
+  await withActivityLog(session, { aksi: "hapus", tipeKonten: "entry", targetId: id }, async (client) => {
+    const { rows } = await client.query(
+      `UPDATE entries SET dihapus_pada = now(), dihapus_oleh = $2
+       WHERE id = $1 AND dihapus_pada IS NULL RETURNING lema`,
+      [id, Number(session.sub)]
+    );
+    return rows[0] ? { ringkasan: `Lema "${rows[0].lema}"` } : null;
+  });
   revalidatePath("/admin/kamus");
 }
 
@@ -26,14 +36,14 @@ export default async function AdminKamusPage({
   const offset = (hal - 1) * PER;
 
   const params: (string | number)[] = [];
-  const conditions: string[] = [];
+  const conditions: string[] = ["e.dihapus_pada IS NULL"];
 
   if (q) {
     params.push(`%${q}%`);
     conditions.push(`(e.lema ILIKE $${params.length} OR e.arti_indonesia ILIKE $${params.length})`);
   }
 
-  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+  const where = `WHERE ${conditions.join(" AND ")}`;
   params.push(PER, offset);
   const limitIdx = params.length - 1;
   const offsetIdx = params.length;
