@@ -56,8 +56,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
 
-        {/* Keluar */}
-        <div className="px-3 pb-5 pt-3 border-t border-white/8">
+        {/* Akun */}
+        <div className="px-3 pb-5 pt-3 border-t border-white/8 space-y-0.5">
+          <Link
+            href="/admin/profil"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-kapur/50 hover:text-white hover:bg-white/8 transition-colors"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
+            </svg>
+            Profil Saya
+          </Link>
           <LogoutButton variant="sidebar" />
         </div>
       </aside>
