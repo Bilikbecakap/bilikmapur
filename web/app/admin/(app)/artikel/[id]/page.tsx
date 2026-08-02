@@ -3,8 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import JudulSlugFields from "@/components/admin/JudulSlugFields";
 import { requireSessionAction } from "@/lib/permissions";
 import { withActivityLog } from "@/lib/activityLog";
+import { KATEGORI_ARTIKEL } from "@/lib/artikelKategori";
 
 export const metadata: Metadata = { title: "Edit Artikel" };
 
@@ -15,7 +17,7 @@ async function updateArtikel(formData: FormData) {
   await withActivityLog(session, { aksi: "edit", tipeKonten: "artikel", targetId: id }, async (client) => {
     const { rows } = await client.query(
       `UPDATE artikel SET judul=$1, slug=$2, ringkasan=$3, konten=$4, penulis=$5,
-        gambar_sampul=$6, status=$7, diperbarui_pada=now() WHERE id=$8 AND dihapus_pada IS NULL RETURNING judul`,
+        gambar_sampul=$6, kategori=$7, status=$8, diperbarui_pada=now() WHERE id=$9 AND dihapus_pada IS NULL RETURNING judul`,
       [
         (formData.get("judul") as string).trim(),
         (formData.get("slug") as string).trim(),
@@ -23,6 +25,7 @@ async function updateArtikel(formData: FormData) {
         (formData.get("konten") as string).trim() || null,
         (formData.get("penulis") as string).trim() || null,
         (formData.get("gambar_sampul") as string).trim() || null,
+        (formData.get("kategori") as string) || null,
         formData.get("status") as string,
         id,
       ]
@@ -44,9 +47,17 @@ export default async function EditArtikelPage({ params }: { params: Promise<{ id
 
       <form action={updateArtikel} className="space-y-5 bg-white rounded-xl border border-granit/25 p-6">
         <input type="hidden" name="id" value={id} />
-        <F label="Judul *" name="judul" defaultValue={a.judul} required />
-        <F label="Slug URL *" name="slug" defaultValue={a.slug} required />
-        <F label="Penulis" name="penulis" defaultValue={a.penulis ?? ""} />
+        <JudulSlugFields defaultJudul={a.judul} defaultSlug={a.slug} />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <F label="Penulis" name="penulis" defaultValue={a.penulis ?? ""} />
+          <div>
+            <label className="block text-xs font-medium text-teks-sekunder mb-1.5">Kategori</label>
+            <select name="kategori" defaultValue={a.kategori ?? ""} className="w-full px-3 py-2.5 rounded-lg border border-granit/30 bg-kapur/30 text-sm text-arang focus:outline-none focus:border-arang">
+              <option value="">— Tanpa kategori —</option>
+              {KATEGORI_ARTIKEL.map((k) => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+        </div>
         <FA label="Ringkasan" name="ringkasan" defaultValue={a.ringkasan ?? ""} rows={2} />
 
         <div>

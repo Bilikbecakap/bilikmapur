@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import pool from "@/lib/db";
 import FileUploader from "@/components/admin/FileUploader";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import JudulSlugFields from "@/components/admin/JudulSlugFields";
 import { requireSessionAction } from "@/lib/permissions";
 import { withActivityLog } from "@/lib/activityLog";
+import { KATEGORI_ARTIKEL } from "@/lib/artikelKategori";
 
 export const metadata: Metadata = { title: "Tulis Artikel" };
 
@@ -17,14 +19,15 @@ async function createArtikel(formData: FormData) {
 
   await withActivityLog(session, { aksi: "tambah", tipeKonten: "artikel" }, async (client) => {
     const { rows } = await client.query(
-      `INSERT INTO artikel (judul, slug, ringkasan, konten, penulis, gambar_sampul, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, judul`,
+      `INSERT INTO artikel (judul, slug, ringkasan, konten, penulis, gambar_sampul, kategori, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, judul`,
       [
         judul, slug,
         (formData.get("ringkasan") as string).trim() || null,
         (formData.get("konten") as string).trim() || null,
         (formData.get("penulis") as string).trim() || null,
         (formData.get("gambar_sampul") as string).trim() || null,
+        (formData.get("kategori") as string) || null,
         formData.get("status") as string,
       ]
     );
@@ -39,9 +42,17 @@ export default function TulisArtikelPage() {
       <h1 className="text-2xl font-semibold text-arang mb-8">Tulis Artikel</h1>
 
       <form action={createArtikel} className="space-y-5 bg-white rounded-xl border border-granit/25 p-6">
-        <F label="Judul *" name="judul" required />
-        <F label="Slug URL *" name="slug" required placeholder="mis. tentang-bahasa-mapur" />
-        <F label="Penulis" name="penulis" />
+        <JudulSlugFields />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <F label="Penulis" name="penulis" />
+          <div>
+            <label className="block text-xs font-medium text-teks-sekunder mb-1.5">Kategori</label>
+            <select name="kategori" className="w-full px-3 py-2.5 rounded-lg border border-granit/30 bg-kapur/30 text-sm text-arang focus:outline-none focus:border-arang">
+              <option value="">— Tanpa kategori —</option>
+              {KATEGORI_ARTIKEL.map((k) => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+        </div>
         <FA label="Ringkasan (ditampilkan di halaman daftar)" name="ringkasan" rows={2} />
 
         <div>

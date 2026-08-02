@@ -26,7 +26,7 @@ async function deleteArtikel(formData: FormData) {
 
 export default async function AdminArtikelPage() {
   const { rows } = await pool.query(
-    `SELECT id, judul, slug, penulis, status,
+    `SELECT id, judul, slug, penulis, kategori, status,
             to_char(dibuat_pada,'DD Mon YYYY') AS tgl
      FROM artikel WHERE dihapus_pada IS NULL ORDER BY dibuat_pada DESC`
   );
@@ -46,6 +46,7 @@ export default async function AdminArtikelPage() {
             <tr>
               <th className="text-left px-4 py-3 text-xs font-semibold text-teks-sekunder uppercase tracking-wide">Judul</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-teks-sekunder uppercase tracking-wide hidden sm:table-cell">Penulis</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-teks-sekunder uppercase tracking-wide hidden lg:table-cell">Kategori</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-teks-sekunder uppercase tracking-wide hidden md:table-cell">Tanggal</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-teks-sekunder uppercase tracking-wide">Status</th>
               <th className="px-4 py-3"></th>
@@ -56,6 +57,7 @@ export default async function AdminArtikelPage() {
               <tr key={r.id} className={i !== 0 ? "border-t border-granit/15" : ""}>
                 <td className="px-4 py-3 font-medium text-arang">{r.judul}</td>
                 <td className="px-4 py-3 text-teks-sekunder hidden sm:table-cell">{r.penulis ?? "—"}</td>
+                <td className="px-4 py-3 text-teks-sekunder hidden lg:table-cell text-xs">{r.kategori ?? "—"}</td>
                 <td className="px-4 py-3 text-teks-sekunder hidden md:table-cell text-xs">{r.tgl}</td>
                 <td className="px-4 py-3">
                   <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${r.status === "published" ? "bg-rimba/15 text-rimba" : "bg-granit/20 text-teks-sekunder"}`}>
